@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { LotteryConfig, Prize, MessageMode } from '../types';
 import { generateTetBackground } from '../services/geminiService';
+import { deleteAsset } from '../services/storageService';
 
 interface AdminPanelProps {
   config: LotteryConfig;
@@ -15,7 +16,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
   const [bgPrompt, setBgPrompt] = useState(config.backgroundPrompt || "");
   const [messageMode, setMessageMode] = useState<MessageMode>(config.messageMode || 'PREDEFINED');
   const [isGeneratingBg, setIsGeneratingBg] = useState(false);
+  const [bgmEnabled, setBgmEnabled] = useState(config.bgmEnabled);
+  const [sfxEnabled, setSfxEnabled] = useState(config.sfxEnabled);
+  const [volume, setVolume] = useState(config.volume);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bgmInputRef = useRef<HTMLInputElement>(null);
+  const winSfxInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddPrize = () => {
     const newPrize: Prize = {
@@ -50,7 +57,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
       digitDelay, 
       prizes, 
       backgroundPrompt: bgPrompt,
-      messageMode: messageMode
+      messageMode: messageMode,
+      bgmEnabled,
+      sfxEnabled,
+      volume
     });
     alert("Lưu cấu hình thành công!");
   };
@@ -71,7 +81,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
           digitDelay, 
           prizes, 
           backgroundPrompt: bgPrompt,
-          messageMode: messageMode
+          messageMode: messageMode,
+          bgmEnabled,
+          sfxEnabled,
+          volume
         });
         alert("Đã tạo hình nền AI Tết Bính Ngọ thành công!");
       } else {
@@ -95,14 +108,44 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
       reader.onloadend = () => {
         const base64String = reader.result as string;
         onUpdate({ ...config, backgroundUrl: base64String });
-        alert("Đã tải ảnh nền lên thành công!");
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleResetBackground = () => {
+  const handleAudioUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'BGM' | 'WIN_SFX') => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        alert("Dung lượng âm thanh quá lớn (tối đa 15MB).");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        if (type === 'BGM') {
+            onUpdate({ ...config, customBgmUrl: base64String });
+        } else {
+            onUpdate({ ...config, customWinningSfxUrl: base64String });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDeleteCustomAsset = async (type: 'BGM' | 'WIN_SFX') => {
+      if (type === 'BGM') {
+          await deleteAsset('asset_bgm');
+          onUpdate({ ...config, customBgmUrl: undefined });
+      } else {
+          await deleteAsset('asset_winsfx');
+          onUpdate({ ...config, customWinningSfxUrl: undefined });
+      }
+  };
+
+  const handleResetBackground = async () => {
     if (window.confirm("Bạn muốn quay lại hình nền mặc định?")) {
+        await deleteAsset('asset_background');
         onUpdate({ ...config, backgroundUrl: 'https://r.jina.ai/i/6f9472314f3b4d4f8260a92f808f978e' });
     }
   };
@@ -191,6 +234,73 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
           <i className="fas fa-cog text-amber-400"></i>
           Thông số kỹ thuật 2026
         </h2>
+
+        {/* Audio Configuration */}
+        <div className="mb-10 p-6 bg-amber-500/5 rounded-2xl border border-amber-500/20">
+          <h3 className="text-xs font-bold text-amber-300 mb-6 uppercase tracking-[0.2em]">Âm thanh & Hiệu ứng</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center mb-8">
+            <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5">
+              <span className="text-sm font-bold text-white uppercase tracking-wider">Nhạc nền</span>
+              <button 
+                onClick={() => setBgmEnabled(!bgmEnabled)}
+                className={`w-12 h-6 rounded-full transition-all relative ${bgmEnabled ? 'bg-amber-500' : 'bg-white/10'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${bgmEnabled ? 'left-7' : 'left-1'}`}></div>
+              </button>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5">
+              <span className="text-sm font-bold text-white uppercase tracking-wider">Hiệu ứng</span>
+              <button 
+                onClick={() => setSfxEnabled(!sfxEnabled)}
+                className={`w-12 h-6 rounded-full transition-all relative ${sfxEnabled ? 'bg-amber-500' : 'bg-white/10'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${sfxEnabled ? 'left-7' : 'left-1'}`}></div>
+              </button>
+            </div>
+            <div className="p-4 bg-black/20 rounded-xl border border-white/5">
+              <div className="flex justify-between mb-2">
+                <span className="text-[10px] font-black text-amber-300 uppercase">Âm lượng: {Math.round(volume * 100)}%</span>
+              </div>
+              <input 
+                type="range" 
+                min="0" 
+                max="1" 
+                step="0.05" 
+                value={volume}
+                onChange={(e) => setVolume(parseFloat(e.target.value))}
+                className="w-full h-1 bg-amber-500/20 rounded-lg appearance-none cursor-pointer accent-amber-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div className="p-4 bg-black/20 rounded-xl border border-white/5 flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-amber-300 uppercase">Tải nhạc nền (.mp3)</span>
+                    {config.customBgmUrl && (
+                        <button onClick={() => handleDeleteCustomAsset('BGM')} className="text-[10px] text-red-400 hover:text-red-300 uppercase font-bold">Xóa tùy chỉnh</button>
+                    )}
+                </div>
+                <input type="file" ref={bgmInputRef} className="hidden" accept="audio/*" onChange={(e) => handleAudioUpload(e, 'BGM')} />
+                <button onClick={() => bgmInputRef.current?.click()} className="py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider transition-all">
+                    {config.customBgmUrl ? <><i className="fas fa-check-circle text-green-400 mr-2"></i> Đã có nhạc riêng</> : <><i className="fas fa-music mr-2"></i> Chọn nhạc nền</>}
+                </button>
+             </div>
+
+             <div className="p-4 bg-black/20 rounded-xl border border-white/5 flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-amber-300 uppercase">Tải âm thắng cuộc (.mp3)</span>
+                    {config.customWinningSfxUrl && (
+                        <button onClick={() => handleDeleteCustomAsset('WIN_SFX')} className="text-[10px] text-red-400 hover:text-red-300 uppercase font-bold">Xóa tùy chỉnh</button>
+                    )}
+                </div>
+                <input type="file" ref={winSfxInputRef} className="hidden" accept="audio/*" onChange={(e) => handleAudioUpload(e, 'WIN_SFX')} />
+                <button onClick={() => winSfxInputRef.current?.click()} className="py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider transition-all">
+                    {config.customWinningSfxUrl ? <><i className="fas fa-check-circle text-green-400 mr-2"></i> Đã có âm thắng riêng</> : <><i className="fas fa-bullhorn mr-2"></i> Chọn âm thắng cuộc</>}
+                </button>
+             </div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
           <div>

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LotteryConfig, Prize, Winner } from '../types';
 import DigitSlot from './DigitSlot';
 import { generateWinnerHype, getRandomFallbackMessage } from '../services/geminiService';
@@ -10,6 +10,11 @@ interface DrawScreenProps {
   onDraw: (winner: Winner, updatedPrizes: Prize[]) => void;
 }
 
+// SFX Resources
+const SPIN_SFX = "https://assets.mixkit.co/sfx/preview/mixkit-mechanical-wheel-spinning-1139.mp3";
+const STOP_SFX = "https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3";
+const WINNER_SFX_DEFAULT = "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3";
+
 const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
   const [spinningStates, setSpinningStates] = useState<boolean[]>([]);
   const [selectedPrizeId, setSelectedPrizeId] = useState<string | null>(null);
@@ -17,8 +22,26 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
   const [winningMessage, setWinningMessage] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
 
+  const spinAudioRef = useRef<HTMLAudioElement | null>(null);
+  const stopAudioRef = useRef<HTMLAudioElement | null>(null);
+  const winnerAudioRef = useRef<HTMLAudioElement | null>(null);
+
   const digitCount = config.maxNumber.toString().length;
   const isAnySpinning = spinningStates.some(s => s === true);
+
+  // Preload Audio
+  useEffect(() => {
+    spinAudioRef.current = new Audio(SPIN_SFX);
+    spinAudioRef.current.loop = true;
+    stopAudioRef.current = new Audio(STOP_SFX);
+    
+    // Update winner audio whenever config changes
+    winnerAudioRef.current = new Audio(config.customWinningSfxUrl || WINNER_SFX_DEFAULT);
+
+    return () => {
+        spinAudioRef.current?.pause();
+    };
+  }, [config.customWinningSfxUrl]);
 
   useEffect(() => {
     if (currentNumber.length !== digitCount) {
@@ -32,6 +55,14 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
       if (firstAvailable) setSelectedPrizeId(firstAvailable.id);
     }
   }, [digitCount, config.prizes, selectedPrizeId]);
+
+  const playSfx = (audio: HTMLAudioElement | null) => {
+    if (config.sfxEnabled && audio) {
+        audio.currentTime = 0;
+        audio.volume = config.volume;
+        audio.play().catch(() => {});
+    }
+  };
 
   const startDraw = async () => {
     if (!selectedPrizeId) {
@@ -49,6 +80,11 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
     setShowCelebration(false);
     setSpinningStates(new Array(digitCount).fill(true));
 
+    if (config.sfxEnabled && spinAudioRef.current) {
+        spinAudioRef.current.volume = config.volume;
+        spinAudioRef.current.play().catch(() => {});
+    }
+
     let winningNum = "";
     let isUnique = false;
     let attempts = 0;
@@ -63,12 +99,10 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
 
     setCurrentNumber(winningNum);
     
-    // Determine the hype promise based on config
     let hypePromise: Promise<string>;
     if (config.messageMode === 'AI') {
       hypePromise = generateWinnerHype(prize.name, winningNum);
     } else {
-      // Return immediately if using predefined
       hypePromise = Promise.resolve(getRandomFallbackMessage(prize.name, winningNum));
     }
 
@@ -83,7 +117,10 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
           return next;
         });
 
+        playSfx(stopAudioRef.current);
+
         if (i === digitCount - 1) {
+          spinAudioRef.current?.pause();
           finishDraw(prize, winningNum, hypePromise);
         }
       }, initialDelay + (i * gap));
@@ -92,6 +129,8 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
 
   const finishDraw = async (prize: Prize, winningNum: string, hypePromise: Promise<string>) => {
     setShowCelebration(true);
+    playSfx(winnerAudioRef.current);
+    
     const hype = await hypePromise;
     setWinningMessage(hype);
 

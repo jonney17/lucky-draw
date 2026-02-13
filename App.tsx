@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AppState, LotteryConfig, Winner, Prize } from './types';
 import AdminPanel from './components/AdminPanel';
 import DrawScreen from './components/DrawScreen';
+import { saveAsset, getAsset } from './services/storageService';
 
 const DEFAULT_CONFIG: LotteryConfig = {
   maxNumber: 9999,
@@ -14,36 +15,114 @@ const DEFAULT_CONFIG: LotteryConfig = {
   ],
   backgroundUrl: 'https://r.jina.ai/i/6f9472314f3b4d4f8260a92f808f978e',
   backgroundPrompt: "A beautiful and high-quality artistic background for Lunar New Year 2026 Year of the Horse (Bính Ngọ) in Vietnam. Include a majestic horse, traditional Bánh Tét, blooming Yellow Apricot (Mai) and Pink Cherry Blossoms (Đào). In the background, subtly integrate a beautiful and peaceful Catholic Church architecture. The style should be festive, warm, with red and gold color palettes, rich in Vietnamese cultural heritage. Cinematic lighting, 4k resolution, panoramic view.",
-  messageMode: 'PREDEFINED'
+  messageMode: 'PREDEFINED',
+  bgmEnabled: true,
+  sfxEnabled: true,
+  volume: 0.5
 };
+
+const BGM_URL_DEFAULT = "https://assets.mixkit.co/music/preview/mixkit-glimmering-stars-584.mp3";
 
 const App: React.FC = () => {
   const [activeState, setActiveState] = useState<AppState>(AppState.DRAW);
-  const [config, setConfig] = useState<LotteryConfig>(() => {
-    const saved = localStorage.getItem('lottery_config_2026');
-    const parsed = saved ? JSON.parse(saved) : DEFAULT_CONFIG;
-    // Ensure legacy storage has all fields
-    if (parsed) {
-        if (!parsed.backgroundPrompt) parsed.backgroundPrompt = DEFAULT_CONFIG.backgroundPrompt;
-        if (!parsed.messageMode) parsed.messageMode = DEFAULT_CONFIG.messageMode;
-    }
-    return parsed;
-  });
-  const [winners, setWinners] = useState<Winner[]>(() => {
-    const saved = localStorage.getItem('lottery_winners_2026');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [config, setConfig] = useState<LotteryConfig>(DEFAULT_CONFIG);
+  const [winners, setWinners] = useState<Winner[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
 
+  // Initial Data Loading
   useEffect(() => {
-    localStorage.setItem('lottery_config_2026', JSON.stringify(config));
+    const loadData = async () => {
+      // 1. Load Settings from LocalStorage
+      const savedSettings = localStorage.getItem('lottery_settings_2026_v4');
+      const settings = savedSettings ? JSON.parse(savedSettings) : DEFAULT_CONFIG;
+
+      // 2. Load Large Assets from IndexedDB
+      const backgroundUrl = await getAsset('asset_background');
+      const customBgmUrl = await getAsset('asset_bgm');
+      const customWinningSfxUrl = await getAsset('asset_winsfx');
+
+      // 3. Load Winners from LocalStorage
+      const savedWinners = localStorage.getItem('lottery_winners_2026_v4');
+      const loadedWinners = savedWinners ? JSON.parse(savedWinners) : [];
+
+      setConfig({
+        ...DEFAULT_CONFIG,
+        ...settings,
+        backgroundUrl: backgroundUrl || settings.backgroundUrl || DEFAULT_CONFIG.backgroundUrl,
+        customBgmUrl: customBgmUrl || undefined,
+        customWinningSfxUrl: customWinningSfxUrl || undefined
+      });
+      setWinners(loadedWinners);
+      setIsLoaded(true);
+    };
+
+    loadData();
+  }, []);
+
+  // Save Config & Assets when changed
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    // Save lightweight settings to LocalStorage
+    const { backgroundUrl, customBgmUrl, customWinningSfxUrl, ...settingsToSave } = config;
+    localStorage.setItem('lottery_settings_2026_v4', JSON.stringify(settingsToSave));
+
+    // Save heavyweight assets to IndexedDB (only if they are base64/large strings)
+    const saveLargeAssets = async () => {
+        if (backgroundUrl && backgroundUrl.startsWith('data:')) {
+            await saveAsset('asset_background', backgroundUrl);
+        }
+        if (customBgmUrl && customBgmUrl.startsWith('data:')) {
+            await saveAsset('asset_bgm', customBgmUrl);
+        }
+        if (customWinningSfxUrl && customWinningSfxUrl.startsWith('data:')) {
+            await saveAsset('asset_winsfx', customWinningSfxUrl);
+        }
+    };
+    saveLargeAssets();
+
+    // Update body background
     if (config.backgroundUrl) {
       document.body.style.backgroundImage = `url('${config.backgroundUrl}')`;
     }
-  }, [config]);
+  }, [config, isLoaded]);
 
+  // Save Winners when changed
   useEffect(() => {
-    localStorage.setItem('lottery_winners_2026', JSON.stringify(winners));
-  }, [winners]);
+    if (!isLoaded) return;
+    localStorage.setItem('lottery_winners_2026_v4', JSON.stringify(winners));
+  }, [winners, isLoaded]);
+
+  // BGM Management
+  useEffect(() => {
+    if (!isLoaded) return;
+    
+    const currentBgmUrl = config.customBgmUrl || BGM_URL_DEFAULT;
+    
+    if (!bgmRef.current || bgmRef.current.src !== currentBgmUrl) {
+      if (bgmRef.current) bgmRef.current.pause();
+      bgmRef.current = new Audio(currentBgmUrl);
+      bgmRef.current.loop = true;
+    }
+    
+    bgmRef.current.volume = config.volume;
+
+    if (config.bgmEnabled) {
+      const playBgm = () => {
+        bgmRef.current?.play().catch(() => {});
+      };
+      playBgm();
+      window.addEventListener('click', playBgm, { once: true });
+    } else {
+      bgmRef.current.pause();
+    }
+
+    return () => {
+        bgmRef.current?.pause();
+    };
+  }, [config.bgmEnabled, config.volume, config.customBgmUrl, isLoaded]);
 
   const handleUpdateConfig = (newConfig: LotteryConfig) => {
     setConfig(newConfig);
@@ -62,6 +141,21 @@ const App: React.FC = () => {
     }
   };
 
+  const toggleBgm = () => {
+    setConfig(prev => ({ ...prev, bgmEnabled: !prev.bgmEnabled }));
+  };
+
+  if (!isLoaded) {
+    return (
+        <div className="h-screen flex items-center justify-center bg-red-950 text-amber-400">
+            <div className="text-center">
+                <i className="fas fa-horse-head text-6xl animate-bounce mb-4"></i>
+                <div className="text-xl font-bold tracking-widest uppercase">Đang khởi tạo Tết 2026...</div>
+            </div>
+        </div>
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col overflow-hidden relative z-10">
       {/* Navigation Header */}
@@ -75,24 +169,33 @@ const App: React.FC = () => {
           </h1>
         </div>
 
-        <div className="flex gap-1 bg-black/30 p-1 rounded-xl border border-white/10">
+        <div className="flex items-center gap-4">
+          <div className="flex gap-1 bg-black/30 p-1 rounded-xl border border-white/10">
+            <button 
+              onClick={() => setActiveState(AppState.DRAW)}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeState === AppState.DRAW ? 'bg-amber-500 text-red-900 shadow-lg' : 'text-amber-200/60 hover:text-amber-200'}`}
+            >
+              <i className="fas fa-play mr-1"></i> QUAY SỐ
+            </button>
+            <button 
+              onClick={() => setActiveState(AppState.ADMIN)}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeState === AppState.ADMIN ? 'bg-amber-500 text-red-900 shadow-lg' : 'text-amber-200/60 hover:text-amber-200'}`}
+            >
+              <i className="fas fa-cog mr-1"></i> CẤU HÌNH
+            </button>
+            <button 
+              onClick={() => setActiveState(AppState.HISTORY)}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeState === AppState.HISTORY ? 'bg-amber-500 text-red-900 shadow-lg' : 'text-amber-200/60 hover:text-amber-200'}`}
+            >
+              <i className="fas fa-list mr-1"></i> LỊCH SỬ
+            </button>
+          </div>
+
           <button 
-            onClick={() => setActiveState(AppState.DRAW)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeState === AppState.DRAW ? 'bg-amber-500 text-red-900 shadow-lg' : 'text-amber-200/60 hover:text-amber-200'}`}
+            onClick={toggleBgm}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${config.bgmEnabled ? 'bg-amber-500/20 text-amber-400' : 'bg-white/5 text-white/30'}`}
           >
-            <i className="fas fa-play mr-1"></i> QUAY SỐ
-          </button>
-          <button 
-            onClick={() => setActiveState(AppState.ADMIN)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeState === AppState.ADMIN ? 'bg-amber-500 text-red-900 shadow-lg' : 'text-amber-200/60 hover:text-amber-200'}`}
-          >
-            <i className="fas fa-cog mr-1"></i> CẤU HÌNH
-          </button>
-          <button 
-            onClick={() => setActiveState(AppState.HISTORY)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${activeState === AppState.HISTORY ? 'bg-amber-500 text-red-900 shadow-lg' : 'text-amber-200/60 hover:text-amber-200'}`}
-          >
-            <i className="fas fa-list mr-1"></i> LỊCH SỬ
+            <i className={`fas ${config.bgmEnabled ? 'fa-volume-up' : 'fa-volume-mute'}`}></i>
           </button>
         </div>
       </nav>

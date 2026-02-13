@@ -24,6 +24,11 @@ export interface LotteryConfig {
   backgroundUrl?: string; // Lưu URL hình nền AI
   backgroundPrompt?: string; // Lưu câu lệnh tạo hình nền
   messageMode: MessageMode; // Chế độ tạo lời chúc: AI hoặc Danh sách mẫu
+  bgmEnabled: boolean;
+  sfxEnabled: boolean;
+  volume: number;
+  customBgmUrl?: string; // Nhạc nền tùy chỉnh (base64)
+  customWinningSfxUrl?: string; // Hiệu ứng thắng cuộc tùy chỉnh (base64)
 }
 
 export enum AppState {
