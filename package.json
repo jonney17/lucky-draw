@@ -1,14 +1,17 @@
-
 {
   "name": "luxedraw-ai-2026",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron": "electron .",
+    "start": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron . --dev\"",
+    "dist": "npm run build && electron-builder"
   },
   "dependencies": {
     "@google/genai": "^1.41.0",
@@ -20,9 +23,25 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^40.4.0",
+    "electron-builder": "^26.7.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "wait-on": "^9.0.4"
+  },
+  "build": {
+    "appId": "com.luxedraw.app",
+    "productName": "luxedraw-ai-2026",
+    "files": [
+      "main.js",
+      "dist/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
   }
 }

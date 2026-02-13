@@ -11,9 +11,9 @@ interface DrawScreenProps {
 }
 
 // SFX Resources
-const SPIN_SFX = "https://assets.mixkit.co/sfx/preview/mixkit-mechanical-wheel-spinning-1139.mp3";
-const STOP_SFX = "https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3";
-const WINNER_SFX_DEFAULT = "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3";
+const SPIN_SFX = "/audio/draw-effect.mp3";
+const STOP_SFX = "/audio/click-effect.mp3";
+const WINNER_SFX_DEFAULT = "/audio/win-effect.mp3";
 
 const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
   const [spinningStates, setSpinningStates] = useState<boolean[]>([]);

@@ -13,7 +13,7 @@ const DEFAULT_CONFIG: LotteryConfig = {
     { id: '2', name: 'Giải Nhất', count: 3, remaining: 3, rank: 2 },
     { id: '3', name: 'Giải Khuyến Khích', count: 10, remaining: 10, rank: 3 },
   ],
-  backgroundUrl: 'https://r.jina.ai/i/6f9472314f3b4d4f8260a92f808f978e',
+  backgroundUrl: '/default-background.png',
   backgroundPrompt: "A beautiful and high-quality artistic background for Lunar New Year 2026 Year of the Horse (Bính Ngọ) in Vietnam. Include a majestic horse, traditional Bánh Tét, blooming Yellow Apricot (Mai) and Pink Cherry Blossoms (Đào). In the background, subtly integrate a beautiful and peaceful Catholic Church architecture. The style should be festive, warm, with red and gold color palettes, rich in Vietnamese cultural heritage. Cinematic lighting, 4k resolution, panoramic view.",
   messageMode: 'PREDEFINED',
   bgmEnabled: true,
@@ -21,7 +21,7 @@ const DEFAULT_CONFIG: LotteryConfig = {
   volume: 0.5
 };
 
-const BGM_URL_DEFAULT = "https://assets.mixkit.co/music/preview/mixkit-glimmering-stars-584.mp3";
+const BGM_URL_DEFAULT = "/audio/background-music.mp3";
 
 const App: React.FC = () => {
   const [activeState, setActiveState] = useState<AppState>(AppState.DRAW);
@@ -47,10 +47,21 @@ const App: React.FC = () => {
       const savedWinners = localStorage.getItem('lottery_winners_2026_v4');
       const loadedWinners = savedWinners ? JSON.parse(savedWinners) : [];
 
+      // Determine background URL with proper fallback
+      let finalBgUrl = backgroundUrl || settings.backgroundUrl;
+      
+      // If no background is set or it's an old URL, use default
+      if (!finalBgUrl || finalBgUrl.includes('jina.ai')) {
+        finalBgUrl = DEFAULT_CONFIG.backgroundUrl;
+      }
+
+      // Set background immediately
+      document.body.style.backgroundImage = `url('${finalBgUrl}')`;
+
       setConfig({
         ...DEFAULT_CONFIG,
         ...settings,
-        backgroundUrl: backgroundUrl || settings.backgroundUrl || DEFAULT_CONFIG.backgroundUrl,
+        backgroundUrl: finalBgUrl,
         customBgmUrl: customBgmUrl || undefined,
         customWinningSfxUrl: customWinningSfxUrl || undefined
       });
@@ -263,7 +274,7 @@ const App: React.FC = () => {
       </main>
       
       <footer className="py-4 text-center text-amber-100/30 text-[10px] uppercase tracking-[0.4em] flex-shrink-0 bg-black/40 backdrop-blur-md border-t border-white/5">
-        &copy; {new Date().getFullYear()} LuxeDraw AI • Xuân Bính Ngọ - Mã Đáo Thành Công
+        &copy; {new Date().getFullYear()} LuxeDraw • Xuân Bính Ngọ - Mã Đáo Thành Công • Minh Nghĩa - 0939813969
       </footer>
     </div>
   );
