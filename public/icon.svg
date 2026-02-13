@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff5cc"/>
+      <stop offset="50%" stop-color="#ffd700"/>
+      <stop offset="100%" stop-color="#b8860b"/>
+    </linearGradient>
+    <radialGradient id="redbg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#ff3b3b"/>
+      <stop offset="100%" stop-color="#990000"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1024" height="1024" rx="220" fill="url(#redbg)"/>
+
+  <!-- Title -->
+  <text x="512" y="200" font-size="120" font-weight="bold" text-anchor="middle"
+        fill="url(#gold)" font-family="Arial, sans-serif">
+    BÍNH NGỌ
+  </text>
+
+  <!-- Golden Horse Symbol (Stylized) -->
+  <path d="M300 520 Q420 380 600 450 Q680 480 720 560 Q650 520 580 540 Q520 560 480 600 Q430 650 360 630 Z"
+        fill="url(#gold)" opacity="0.95"/>
+
+  <!-- Lottery Balls -->
+  <circle cx="312" cy="760" r="120" fill="url(#gold)"/>
+  <circle cx="512" cy="760" r="140" fill="url(#gold)"/>
+  <circle cx="712" cy="760" r="120" fill="url(#gold)"/>
+
+  <text x="312" y="790" font-size="110" font-weight="bold" text-anchor="middle"
+        fill="#7a0000" font-family="Arial, sans-serif">6</text>
+  <text x="512" y="800" font-size="130" font-weight="bold" text-anchor="middle"
+        fill="#7a0000" font-family="Arial, sans-serif">2</text>
+  <text x="712" y="790" font-size="110" font-weight="bold" text-anchor="middle"
+        fill="#7a0000" font-family="Arial, sans-serif">8</text>
+
+</svg>

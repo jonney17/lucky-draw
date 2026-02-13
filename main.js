@@ -15,9 +15,12 @@ app.commandLine.appendSwitch('disable-gpu-cache')
 app.commandLine.appendSwitch('disable-component-cache')
 
 function createWindow() {
+  const iconPath = path.join(__dirname, 'public', 'icon.png')
+  
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    icon: iconPath,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

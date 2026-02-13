@@ -1,5 +1,5 @@
 
-# 🐎 LuxeDraw AI - Xuân Bính Ngọ 2026 • Minh Nghĩa - 0939813969
+# 🐎 LuxeDraw AI - Xuân Bính Ngọ 2026 • NiKenSoft - 0939.813.969
 
 Hệ thống quay số trúng thưởng đẳng cấp tích hợp trí tuệ nhân tạo Gemini để tạo lời chúc và hình nền nghệ thuật.
 

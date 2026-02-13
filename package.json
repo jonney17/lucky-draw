@@ -38,10 +38,24 @@
     "productName": "luxedraw-ai-2026",
     "files": [
       "main.js",
-      "dist/**/*"
+      "dist/**/*",
+      "public/**/*"
     ],
     "directories": {
       "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName}-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }

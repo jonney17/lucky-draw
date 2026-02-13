@@ -274,7 +274,7 @@ const App: React.FC = () => {
       </main>
       
       <footer className="py-4 text-center text-amber-100/30 text-[10px] uppercase tracking-[0.4em] flex-shrink-0 bg-black/40 backdrop-blur-md border-t border-white/5">
-        &copy; {new Date().getFullYear()} LuxeDraw • Xuân Bính Ngọ - Mã Đáo Thành Công • Minh Nghĩa - 0939813969
+        &copy; {new Date().getFullYear()} LuxeDraw • Xuân Bính Ngọ - Mã Đáo Thành Công • NiKenSoft - 0939.813.969
       </footer>
     </div>
   );
