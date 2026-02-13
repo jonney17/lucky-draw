@@ -15,7 +15,7 @@ const FALLBACK_MESSAGES = [
 /**
  * Lấy một câu chúc ngẫu nhiên từ danh sách dự phòng
  */
-function getRandomFallbackMessage(prizeName: string, winningNumber: string): string {
+export function getRandomFallbackMessage(prizeName: string, winningNumber: string): string {
   const randomIndex = Math.floor(Math.random() * FALLBACK_MESSAGES.length);
   return FALLBACK_MESSAGES[randomIndex]
     .replace("{prize}", prizeName)

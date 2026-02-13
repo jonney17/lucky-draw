@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { LotteryConfig, Prize } from '../types';
+import { LotteryConfig, Prize, MessageMode } from '../types';
 import { generateTetBackground } from '../services/geminiService';
 
 interface AdminPanelProps {
@@ -13,6 +13,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
   const [digitDelay, setDigitDelay] = useState(config.digitDelay || 1000);
   const [prizes, setPrizes] = useState<Prize[]>(config.prizes);
   const [bgPrompt, setBgPrompt] = useState(config.backgroundPrompt || "");
+  const [messageMode, setMessageMode] = useState<MessageMode>(config.messageMode || 'PREDEFINED');
   const [isGeneratingBg, setIsGeneratingBg] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,7 +44,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
   };
 
   const handleSave = () => {
-    onUpdate({ ...config, maxNumber: maxNum, digitDelay, prizes, backgroundPrompt: bgPrompt });
+    onUpdate({ 
+      ...config, 
+      maxNumber: maxNum, 
+      digitDelay, 
+      prizes, 
+      backgroundPrompt: bgPrompt,
+      messageMode: messageMode
+    });
     alert("Lưu cấu hình thành công!");
   };
 
@@ -56,7 +64,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
     try {
       const newUrl = await generateTetBackground(bgPrompt);
       if (newUrl) {
-        onUpdate({ ...config, backgroundUrl: newUrl, maxNumber: maxNum, digitDelay, prizes, backgroundPrompt: bgPrompt });
+        onUpdate({ 
+          ...config, 
+          backgroundUrl: newUrl, 
+          maxNumber: maxNum, 
+          digitDelay, 
+          prizes, 
+          backgroundPrompt: bgPrompt,
+          messageMode: messageMode
+        });
         alert("Đã tạo hình nền AI Tết Bính Ngọ thành công!");
       } else {
         alert("Không thể tạo hình nền. Vui lòng thử lại sau.");
@@ -69,7 +85,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // FIX: Access 'files' directly from 'event.target' as 'target' property does not exist on 'HTMLInputElement'
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -200,6 +215,40 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
               className="w-full bg-red-950/40 border border-amber-500/30 rounded-xl px-4 py-4 text-white font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
             />
             <p className="text-[10px] text-amber-500/50 mt-2 italic">Thời gian chờ dừng hàng đơn vị, chục, trăm...</p>
+          </div>
+        </div>
+
+        {/* New Message Mode Configuration */}
+        <div className="mb-10 p-6 bg-amber-500/5 rounded-2xl border border-amber-500/20">
+          <label className="block text-xs font-bold text-amber-300 mb-4 uppercase tracking-[0.2em]">Chế độ lời chúc người thắng cuộc</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button 
+              onClick={() => setMessageMode('PREDEFINED')}
+              className={`p-4 rounded-xl border-2 transition-all text-left flex items-start gap-4 ${messageMode === 'PREDEFINED' ? 'bg-amber-500/20 border-amber-500' : 'bg-black/20 border-white/5 hover:border-white/20'}`}
+            >
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 ${messageMode === 'PREDEFINED' ? 'border-amber-500' : 'border-white/20'}`}>
+                {messageMode === 'PREDEFINED' && <div className="w-3 h-3 bg-amber-500 rounded-full"></div>}
+              </div>
+              <div>
+                <div className="font-bold text-sm text-white mb-1 uppercase tracking-wider">Danh sách mẫu (Mặc định)</div>
+                <div className="text-[11px] text-amber-100/50">Lấy ngẫu nhiên lời chúc từ bộ sưu tập có sẵn. Nhanh và ổn định.</div>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => setMessageMode('AI')}
+              className={`p-4 rounded-xl border-2 transition-all text-left flex items-start gap-4 ${messageMode === 'AI' ? 'bg-red-600/20 border-red-500' : 'bg-black/20 border-white/5 hover:border-white/20'}`}
+            >
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 ${messageMode === 'AI' ? 'border-red-500' : 'border-white/20'}`}>
+                {messageMode === 'AI' && <div className="w-3 h-3 bg-red-500 rounded-full"></div>}
+              </div>
+              <div>
+                <div className="font-bold text-sm text-white mb-1 uppercase tracking-wider flex items-center gap-2">
+                  Trí tuệ nhân tạo Gemini <i className="fas fa-sparkles text-amber-400"></i>
+                </div>
+                <div className="text-[11px] text-amber-100/50">Tạo lời chúc độc bản, sáng tạo theo tên giải và con số.</div>
+              </div>
+            </button>
           </div>
         </div>
 

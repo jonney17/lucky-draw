@@ -13,7 +13,8 @@ const DEFAULT_CONFIG: LotteryConfig = {
     { id: '3', name: 'Giải Khuyến Khích', count: 10, remaining: 10, rank: 3 },
   ],
   backgroundUrl: 'https://r.jina.ai/i/6f9472314f3b4d4f8260a92f808f978e',
-  backgroundPrompt: "A beautiful and high-quality artistic background for Lunar New Year 2026 Year of the Horse (Bính Ngọ) in Vietnam. Include a majestic horse, traditional Bánh Tét, blooming Yellow Apricot (Mai) and Pink Cherry Blossoms (Đào). In the background, subtly integrate a beautiful and peaceful Catholic Church architecture. The style should be festive, warm, with red and gold color palettes, rich in Vietnamese cultural heritage. Cinematic lighting, 4k resolution, panoramic view."
+  backgroundPrompt: "A beautiful and high-quality artistic background for Lunar New Year 2026 Year of the Horse (Bính Ngọ) in Vietnam. Include a majestic horse, traditional Bánh Tét, blooming Yellow Apricot (Mai) and Pink Cherry Blossoms (Đào). In the background, subtly integrate a beautiful and peaceful Catholic Church architecture. The style should be festive, warm, with red and gold color palettes, rich in Vietnamese cultural heritage. Cinematic lighting, 4k resolution, panoramic view.",
+  messageMode: 'PREDEFINED'
 };
 
 const App: React.FC = () => {
@@ -21,9 +22,10 @@ const App: React.FC = () => {
   const [config, setConfig] = useState<LotteryConfig>(() => {
     const saved = localStorage.getItem('lottery_config_2026');
     const parsed = saved ? JSON.parse(saved) : DEFAULT_CONFIG;
-    // Ensure backgroundPrompt exists for legacy storage
-    if (parsed && !parsed.backgroundPrompt) {
-        parsed.backgroundPrompt = DEFAULT_CONFIG.backgroundPrompt;
+    // Ensure legacy storage has all fields
+    if (parsed) {
+        if (!parsed.backgroundPrompt) parsed.backgroundPrompt = DEFAULT_CONFIG.backgroundPrompt;
+        if (!parsed.messageMode) parsed.messageMode = DEFAULT_CONFIG.messageMode;
     }
     return parsed;
   });

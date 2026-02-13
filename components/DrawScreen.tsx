@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { LotteryConfig, Prize, Winner } from '../types';
 import DigitSlot from './DigitSlot';
-import { generateWinnerHype } from '../services/geminiService';
+import { generateWinnerHype, getRandomFallbackMessage } from '../services/geminiService';
 
 interface DrawScreenProps {
   config: LotteryConfig;
@@ -62,7 +62,15 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
     }
 
     setCurrentNumber(winningNum);
-    const hypePromise = generateWinnerHype(prize.name, winningNum);
+    
+    // Determine the hype promise based on config
+    let hypePromise: Promise<string>;
+    if (config.messageMode === 'AI') {
+      hypePromise = generateWinnerHype(prize.name, winningNum);
+    } else {
+      // Return immediately if using predefined
+      hypePromise = Promise.resolve(getRandomFallbackMessage(prize.name, winningNum));
+    }
 
     const initialDelay = 1500; 
     const gap = config.digitDelay || 1000; 
@@ -126,9 +134,7 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
                   height: `${Math.random() * 10 + 5}px`,
                   backgroundColor: ['#fbbf24', '#f59e0b', '#dc2626', '#ffffff', '#ef4444', '#ffd700'][Math.floor(Math.random() * 6)],
                   borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-                  /* FIX: Moved the 's' outside of the interpolation bracket to avoid it being interpreted as a variable */
                   animationDuration: `${Math.random() * 4 + 2}s`,
-                  /* FIX: Moved the 's' outside of the interpolation bracket to avoid it being interpreted as a variable 's' */
                   animationDelay: `${Math.random() * 2}s`
                 }}
               ></div>
@@ -193,7 +199,6 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
 
       {/* Prize Selection Chips */}
       <div className="w-full flex flex-wrap justify-center gap-3 sm:gap-6 flex-shrink-0 px-4">
-        {/* FIX: Use spread to avoid mutating state with sort() and rename loop variable to 'p' to fix scoping/renaming errors */}
         {[...config.prizes].sort((a,b) => a.rank - b.rank).map((p) => (
           <button
             key={p.id}
