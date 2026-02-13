@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuxeDraw AI - Xuân Bính Ngọ 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #450a0a;
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-attachment: fixed;
+      background-size: cover;
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      transition: background-image 1s ease-in-out;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(69, 10, 10, 0.6));
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #root {
+      position: relative;
+      z-index: 2;
+    }
+
+    .font-digital {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .glass-morphism {
+      background: rgba(45, 10, 10, 0.4);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.7);
+    }
+
+    .shimmer {
+      background: linear-gradient(90deg, rgba(255,215,0,0) 0%, rgba(255,215,0,0.4) 50%, rgba(255,215,0,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s infinite linear;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    
+    @keyframes celebrate-pop {
+      0% { transform: scale(0.6) translateY(20px); opacity: 0; }
+      70% { transform: scale(1.05) translateY(-10px); }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .animate-celebrate {
+      animation: celebrate-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes float-particle {
+      0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translateY(-100vh) rotate(720deg) scale(0.5); opacity: 0; }
+    }
+
+    .particle {
+      position: absolute;
+      animation: float-particle linear infinite;
+    }
+
+    .gold-text {
+      background: linear-gradient(to bottom, #fffbeb 0%, #fde68a 30%, #fbbf24 60%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5));
+      font-weight: 900;
+    }
+
+    .tet-button {
+      background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+      border: 2px solid #fbbf24;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .tet-button:hover:not(:disabled) {
+      box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+      transform: translateY(-4px) scale(1.02);
+      border-color: #fde68a;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #991b1b;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #fbbf24;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4",
+    "vite": "https://esm.sh/vite@^7.3.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+  <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
