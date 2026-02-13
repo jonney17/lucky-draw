@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { LotteryConfig, Prize } from '../types';
 import { generateTetBackground } from '../services/geminiService';
 
@@ -14,6 +14,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
   const [prizes, setPrizes] = useState<Prize[]>(config.prizes);
   const [bgPrompt, setBgPrompt] = useState(config.backgroundPrompt || "");
   const [isGeneratingBg, setIsGeneratingBg] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddPrize = () => {
     const newPrize: Prize = {
@@ -67,6 +68,30 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
     }
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // FIX: Access 'files' directly from 'event.target' as 'target' property does not exist on 'HTMLInputElement'
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Dung lượng ảnh quá lớn (tối đa 5MB).");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        onUpdate({ ...config, backgroundUrl: base64String });
+        alert("Đã tải ảnh nền lên thành công!");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResetBackground = () => {
+    if (window.confirm("Bạn muốn quay lại hình nền mặc định?")) {
+        onUpdate({ ...config, backgroundUrl: 'https://r.jina.ai/i/6f9472314f3b4d4f8260a92f808f978e' });
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Background Generator Section */}
@@ -75,10 +100,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
           <div className="flex-1">
             <h3 className="text-2xl font-bold mb-2 flex items-center gap-3">
               <i className="fas fa-magic text-amber-400"></i>
-              Giao diện AI Tết Bính Ngọ
+              Giao diện Tết Bính Ngọ
             </h3>
             <p className="text-amber-100/60 text-sm leading-relaxed mb-4">
-              Tùy chỉnh câu lệnh bên dưới để tạo hình nền độc bản chứa hình ảnh Con Ngựa, Bánh Tét, Hoa Mai, Hoa Đào và Nhà Thờ Công Giáo.
+              Bạn có thể tạo hình nền độc bản bằng AI hoặc tự tải ảnh từ máy tính của mình.
             </p>
             
             <div className="mb-4">
@@ -86,39 +111,62 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ config, onUpdate }) => {
                 <textarea 
                     value={bgPrompt}
                     onChange={(e) => setBgPrompt(e.target.value)}
-                    className="w-full h-32 bg-black/40 border border-amber-500/20 rounded-xl px-4 py-3 text-sm text-amber-100 focus:outline-none focus:border-amber-400 transition-all resize-none"
+                    className="w-full h-24 bg-black/40 border border-amber-500/20 rounded-xl px-4 py-3 text-sm text-amber-100 focus:outline-none focus:border-amber-400 transition-all resize-none"
                     placeholder="Mô tả hình nền bạn muốn tạo..."
                 />
             </div>
           </div>
           
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-4">
                 {config.backgroundUrl && (
-                <div className="w-48 h-20 rounded-xl overflow-hidden border border-white/10 relative group">
-                    <img src={config.backgroundUrl} alt="Preview" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="text-[8px] uppercase font-bold tracking-[0.2em] bg-black/60 px-2 py-0.5 rounded-full">Hiện tại</span>
+                  <div className="relative group">
+                    <div className="w-48 h-24 rounded-xl overflow-hidden border border-white/10 shadow-lg">
+                        <img src={config.backgroundUrl} alt="Preview" className="w-full h-full object-cover" />
                     </div>
-                </div>
+                    <button 
+                      onClick={handleResetBackground}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity border border-white/20"
+                      title="Quay lại mặc định"
+                    >
+                      <i className="fas fa-undo"></i>
+                    </button>
+                  </div>
                 )}
+                <div className="hidden">
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleFileUpload} 
+                      accept="image/*" 
+                    />
+                </div>
             </div>
             
-            <button 
-                onClick={handleCreateAIBackground}
-                disabled={isGeneratingBg}
-                className={`px-8 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all ${
-                isGeneratingBg 
-                ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-red-600 to-red-800 text-white hover:scale-105 shadow-[0_0_20px_rgba(220,38,38,0.4)] border border-amber-400/50'
-                }`}
-            >
-                {isGeneratingBg ? (
-                <><i className="fas fa-spinner fa-spin mr-2"></i> Đang vẽ hình nền...</>
-                ) : (
-                <><i className="fas fa-paint-brush mr-2"></i> Tạo hình nền AI 2026</>
-                )}
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-6 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all bg-white/10 hover:bg-white/20 text-white border border-white/10"
+              >
+                  <i className="fas fa-upload mr-2"></i> Tải ảnh lên
+              </button>
+
+              <button 
+                  onClick={handleCreateAIBackground}
+                  disabled={isGeneratingBg}
+                  className={`px-6 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
+                  isGeneratingBg 
+                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-red-600 to-red-800 text-white hover:scale-105 shadow-[0_0_20px_rgba(220,38,38,0.4)] border border-amber-400/50'
+                  }`}
+              >
+                  {isGeneratingBg ? (
+                  <><i className="fas fa-spinner fa-spin mr-2"></i> Đang vẽ AI...</>
+                  ) : (
+                  <><i className="fas fa-paint-brush mr-2"></i> Tạo bằng AI</>
+                  )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

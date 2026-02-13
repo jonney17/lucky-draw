@@ -3,8 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 
 // Function to generate a creative hype message for the winner using Gemini 3 Flash
 export async function generateWinnerHype(prizeName: string, winningNumber: string): Promise<string> {
-  // Create a new instance right before the call to ensure it uses the most up-to-date API key
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+  // FIX: Always use process.env.API_KEY directly for initialization as per SDK guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -29,8 +29,8 @@ export async function generateWinnerHype(prizeName: string, winningNumber: strin
 
 // Function to generate a custom Lunar New Year background using Gemini 2.5 Flash Image
 export async function generateTetBackground(prompt: string): Promise<string | null> {
-  // Create a new instance right before the call to ensure it uses the most up-to-date API key
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+  // FIX: Always use process.env.API_KEY directly for initialization as per SDK guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
