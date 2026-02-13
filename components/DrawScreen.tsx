@@ -162,7 +162,7 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
           ></div>
           
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(80)].map((_, i) => (
+            {[...Array(60)].map((_, i) => (
               <div 
                 key={i} 
                 className="particle"
@@ -180,48 +180,37 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
             ))}
           </div>
 
-          <div className="relative glass-morphism p-8 sm:p-12 rounded-[4rem] max-w-2xl w-full border-4 border-amber-400 shadow-[0_0_120px_rgba(251,191,36,0.6)] animate-celebrate text-center overflow-y-auto max-h-[95vh]">
-            <div className="absolute -top-12 left-1/2 -translate-x-1/2 scale-75 sm:scale-100">
-               <div className="relative">
-                  <div className="absolute inset-0 bg-amber-400 blur-3xl opacity-50 animate-pulse"></div>
-                  <div className="relative bg-gradient-to-br from-red-600 to-amber-600 p-8 rounded-full shadow-2xl border-4 border-amber-400">
-                    <i className="fas fa-horse text-5xl text-white"></i>
-                  </div>
-               </div>
-            </div>
-
-            <div className="mt-12">
-              <h2 className="text-xl font-bold text-amber-300 tracking-[0.5em] uppercase mb-4">TÂN NIÊN VẠN PHÚC</h2>
-              <h1 className="text-2xl md:text-4xl font-black mb-8 gold-text uppercase leading-tight drop-shadow-lg whitespace-nowrap pt-10 pb-10 max-w-full">{selectedPrize.name}</h1>
+          <div className="relative glass-morphism p-6 sm:p-10 rounded-[3rem] max-w-2xl w-full border-4 border-amber-400 shadow-[0_0_120px_rgba(251,191,36,0.6)] animate-celebrate text-center flex flex-col items-center max-h-[98vh] overflow-hidden">
+            <div className="w-full flex-1 flex flex-col items-center justify-center">
+              <h2 className="text-sm sm:text-lg font-bold text-amber-300 tracking-[0.5em] uppercase mb-2 opacity-80">TÂN NIÊN VẠN PHÚC</h2>
+              <h1 className="text-3xl md:text-5xl font-black mb-4 gold-text uppercase leading-tight drop-shadow-lg shrink-0">{selectedPrize.name}</h1>
               
-              <div className="bg-gradient-to-b from-red-950/90 to-black/80 rounded-[3rem] p-8 sm:p-12 mb-10 border-2 border-amber-500/40 shadow-[inset_0_0_80px_rgba(0,0,0,0.9)]">
-                <div className="text-xs text-amber-200/60 uppercase tracking-[0.6em] mb-4 font-black">Con Số Đại Cát</div>
-                <div className="text-7xl md:text-[9rem] font-digital font-bold tracking-tighter text-white drop-shadow-[0_0_40px_rgba(251,191,36,1)] leading-none">
+              <div className="bg-gradient-to-b from-red-950/90 to-black/80 rounded-[2.5rem] p-6 sm:p-10 mb-6 border-2 border-amber-500/40 shadow-[inset_0_0_60px_rgba(0,0,0,0.9)] w-full shrink-0">
+                <div className="text-[10px] text-amber-200/60 uppercase tracking-[0.6em] mb-2 font-black">Con Số Đại Cát</div>
+                <div className="text-6xl md:text-[8rem] font-digital font-bold tracking-tighter text-white drop-shadow-[0_0_30px_rgba(251,191,36,1)] leading-none">
                   {currentNumber}
                 </div>
               </div>
 
               {winningMessage ? (
-                <div className="mb-10 px-4 animate-in fade-in slide-in-from-top-4 duration-700">
+                <div className="mb-6 px-2 animate-in fade-in slide-in-from-top-4 duration-700 w-full shrink overflow-hidden">
                   <div className="relative group">
-                    <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-red-700 rounded-l-lg border-y-2 border-l-2 border-amber-500/30 z-0"></div>
-                    <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-red-700 rounded-r-lg border-y-2 border-r-2 border-amber-500/30 z-0"></div>
+                    <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-10 bg-red-700 rounded-l-lg border-y-2 border-l-2 border-amber-500/30 z-0 hidden sm:block"></div>
+                    <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-10 bg-red-700 rounded-r-lg border-y-2 border-r-2 border-amber-500/30 z-0 hidden sm:block"></div>
                     
-                    <div className="relative z-10 bg-gradient-to-r from-red-900 via-red-800 to-red-900 border-2 border-amber-400/50 rounded-2xl p-6 sm:p-8 shadow-2xl">
-                      <div className="text-amber-100 text-lg sm:text-2xl font-medium leading-relaxed italic">
-                        <span className="text-4xl text-amber-400 font-serif mr-2 leading-none inline-block align-top">“</span>
+                    <div className="relative z-10 bg-gradient-to-r from-red-900 via-red-800 to-red-900 border-2 border-amber-400/50 rounded-2xl p-4 sm:p-6 shadow-2xl">
+                      <div className="text-amber-100 text-sm sm:text-xl font-medium leading-snug italic line-clamp-4">
+                        <span className="text-2xl text-amber-400 font-serif mr-1 leading-none inline-block align-top">“</span>
                         {winningMessage}
-                        <span className="text-4xl text-amber-400 font-serif ml-2 leading-none inline-block align-bottom">”</span>
+                        <span className="text-2xl text-amber-400 font-serif ml-1 leading-none inline-block align-bottom">”</span>
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="mb-10 px-4">
-                  <div className="h-32 flex items-center justify-center gap-4 text-amber-500/40 italic text-xl">
-                    <i className="fas fa-magic animate-spin"></i>
-                    Đang nhận lộc xuân...
-                  </div>
+                <div className="mb-6 h-20 flex items-center justify-center gap-3 text-amber-500/40 italic text-lg shrink-0">
+                  <i className="fas fa-magic animate-spin"></i>
+                  Đang nhận lộc xuân...
                 </div>
               )}
 
