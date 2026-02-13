@@ -147,7 +147,7 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
 
             <div className="mt-12">
               <h2 className="text-xl font-bold text-amber-300 tracking-[0.5em] uppercase mb-4">TÂN NIÊN VẠN PHÚC</h2>
-              <h1 className="text-4xl md:text-6xl font-black mb-8 gold-text uppercase leading-tight drop-shadow-lg">{selectedPrize.name}</h1>
+              <h1 className="text-2xl md:text-4xl font-black mb-8 gold-text uppercase leading-tight drop-shadow-lg whitespace-nowrap pt-10 pb-10 max-w-full">{selectedPrize.name}</h1>
               
               <div className="bg-gradient-to-b from-red-950/90 to-black/80 rounded-[3rem] p-8 sm:p-12 mb-10 border-2 border-amber-500/40 shadow-[inset_0_0_80px_rgba(0,0,0,0.9)]">
                 <div className="text-xs text-amber-200/60 uppercase tracking-[0.6em] mb-4 font-black">Con Số Đại Cát</div>
@@ -222,7 +222,7 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
             <div className="inline-block px-4 py-1.5 bg-red-900/60 rounded-full border-2 border-amber-500/30 mb-4 shadow-lg">
                <span className="text-amber-300 text-[11px] font-black uppercase tracking-[0.3em]">Hội Xuân Bính Ngọ 2026</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-black text-white gold-text uppercase truncate max-w-full px-4 tracking-tighter">
+            <h2 className="text-3xl sm:text-5xl font-black text-white gold-text uppercase truncate max-w-full px-4 tracking-tighter pt-10 pb-10">
               {selectedPrize?.name || "CHỌN GIẢI THƯỞNG"}
             </h2>
           </div>
@@ -250,12 +250,12 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
               {isAnySpinning ? (
                 <>
                   <i className="fas fa-spinner fa-spin text-xl"></i>
-                  ĐANG KHAI LỘC...
+                  <span className="whitespace-nowrap">ĐANG KHAI LỘC...</span>
                 </>
               ) : (
                 <>
                   <i className="fas fa-horse-head text-amber-400 animate-bounce"></i>
-                  MÃ ĐÁO THÀNH CÔNG
+                  <span className="whitespace-nowrap">MÃ ĐÁO THÀNH CÔNG</span>
                 </>
               )}
             </span>

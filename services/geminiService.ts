@@ -1,10 +1,33 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Function to generate a creative hype message for the winner using Gemini 3 Flash
+// Danh sách câu chúc dự phòng cho năm Bính Ngọ 2026
+const FALLBACK_MESSAGES = [
+  "Chúc mừng bạn trúng {prize}! Con số {number} khai xuân đại cát, năm mới Bính Ngọ mã đáo thành công, vạn sự như ý!",
+  "Lộc xuân gõ cửa! {prize} đã thuộc về số {number}. Chúc tân xuân Bính Ngọ tài lộc đầy nhà, gia đạo bình an!",
+  "Vạn sự hanh thông với con số {number}! Chúc mừng chủ nhân giải {prize} một năm mới phát tài phát lộc!",
+  "Con số {number} mang lời chúc đại thắng! Chúc mừng bạn nhận giải {prize}, năm mới sức khỏe dồi dào, vạn sự như ý!",
+  "Mã đáo thành công cùng giải {prize}! Con số {number} chính là khởi đầu cho một năm 2026 rực rỡ và thành đạt!",
+  "Tân niên vạn phúc! Giải {prize} gọi tên số {number}. Chúc bạn năm mới tiền tùng như nước, sự nghiệp thăng hoa!",
+  "Con số may mắn {number} đã mang về giải {prize}! Chúc bạn và gia đình năm mới an khang, thịnh vượng, vạn thọ vô cương!"
+];
+
+/**
+ * Lấy một câu chúc ngẫu nhiên từ danh sách dự phòng
+ */
+function getRandomFallbackMessage(prizeName: string, winningNumber: string): string {
+  const randomIndex = Math.floor(Math.random() * FALLBACK_MESSAGES.length);
+  return FALLBACK_MESSAGES[randomIndex]
+    .replace("{prize}", prizeName)
+    .replace("{number}", winningNumber);
+}
+
+/**
+ * Tạo lời chúc mừng người thắng cuộc bằng Gemini AI
+ * Nếu lỗi (hết quota, mạng yếu...), sử dụng danh sách dự phòng
+ */
 export async function generateWinnerHype(prizeName: string, winningNumber: string): Promise<string> {
-  // FIX: Always use process.env.API_KEY directly for initialization as per SDK guidelines
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -19,18 +42,18 @@ export async function generateWinnerHype(prizeName: string, winningNumber: strin
       }
     });
 
-    // Access .text property directly as it is a getter, not a method
-    return response.text || `Chúc mừng năm Bính Ngọ! Con số ${winningNumber} mang lại đại cát đại lợi, mã đáo thành công với giải ${prizeName}!`;
+    return response.text || getRandomFallbackMessage(prizeName, winningNumber);
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return `Chúc mừng năm mới Bính Ngọ! Con số ${winningNumber} đã mang tài lộc về nhà. Chúc bạn vạn sự như ý!`;
+    console.warn("Gemini Error (Winner Hype): Sử dụng tin nhắn dự phòng.", error);
+    return getRandomFallbackMessage(prizeName, winningNumber);
   }
 }
 
-// Function to generate a custom Lunar New Year background using Gemini 2.5 Flash Image
+/**
+ * Tạo hình nền Tết bằng Gemini AI
+ */
 export async function generateTetBackground(prompt: string): Promise<string | null> {
-  // FIX: Always use process.env.API_KEY directly for initialization as per SDK guidelines
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
@@ -46,7 +69,6 @@ export async function generateTetBackground(prompt: string): Promise<string | nu
       }
     });
 
-    // Safely iterate through candidates and parts using optional chaining
     const parts = response.candidates?.[0]?.content?.parts;
     if (parts) {
       for (const part of parts) {
