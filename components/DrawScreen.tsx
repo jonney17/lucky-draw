@@ -183,7 +183,7 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
           <div className="relative glass-morphism p-6 sm:p-10 rounded-[3rem] max-w-2xl w-full border-4 border-amber-400 shadow-[0_0_120px_rgba(251,191,36,0.6)] animate-celebrate text-center flex flex-col items-center max-h-[98vh] overflow-hidden">
             <div className="w-full flex-1 flex flex-col items-center justify-center">
               <h2 className="text-sm sm:text-lg font-bold text-amber-300 tracking-[0.5em] uppercase mb-2 opacity-80">TÂN NIÊN VẠN PHÚC</h2>
-              <h1 className="text-3xl md:text-5xl font-black mb-4 gold-text uppercase leading-tight drop-shadow-lg shrink-0">{selectedPrize.name}</h1>
+              <h1 className="text-3xl md:text-5xl font-black mb-4 gold-text uppercase leading-tight drop-shadow-lg shrink-0 pt-10 pb-10">{selectedPrize.name}</h1>
               
               <div className="bg-gradient-to-b from-red-950/90 to-black/80 rounded-[2.5rem] p-6 sm:p-10 mb-6 border-2 border-amber-500/40 shadow-[inset_0_0_60px_rgba(0,0,0,0.9)] w-full shrink-0">
                 <div className="text-[10px] text-amber-200/60 uppercase tracking-[0.6em] mb-2 font-black">Con Số Đại Cát</div>
@@ -218,7 +218,7 @@ const DrawScreen: React.FC<DrawScreenProps> = ({ config, winners, onDraw }) => {
                 onClick={() => setShowCelebration(false)}
                 className="px-16 py-6 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-600 text-red-950 rounded-2xl font-black text-2xl uppercase tracking-[0.2em] hover:brightness-110 transition-all hover:scale-105 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-2 border-red-900/20"
               >
-                TẠ NHẬN LỘC XUÂN
+                NHẬN LỘC XUÂN
               </button>
             </div>
           </div>
